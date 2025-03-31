@@ -47,4 +47,3 @@ export default function BlinkingText({ text, className = "" }: BlinkingTextProps
     </h1>
   )
 }
-

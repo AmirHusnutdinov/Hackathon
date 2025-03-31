@@ -29,7 +29,7 @@ export default function PopupAd({ onClose, count }: PopupAdProps) {
           setIsMoving(false)
         }, 500)
       }
-    }, 1000)
+    }, 1500)
 
     return () => clearInterval(interval)
   }, [position])
@@ -98,4 +98,3 @@ export default function PopupAd({ onClose, count }: PopupAdProps) {
     </div>
   )
 }
-
