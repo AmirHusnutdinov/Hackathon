@@ -1,16 +1,7 @@
-"use client"
+import { useEffect, useRef, useState } from 'react';
+import Head from 'next/head';
 
-import { useEffect, useState, useRef } from "react"
-import { AlertTriangle, Bell, Zap, Heart } from "lucide-react"
-import AdBanner from "@/components/ad-banner"
-import RandomCursor from "@/components/random-cursor"
-import BlinkingText from "@/components/blinking-text"
-import PopupAd from "@/components/popup-ad"
-
-export default function Home() {
-  const [showPopup, setShowPopup] = useState(false)
-  const [popupCount, setPopupCount] = useState(0)
-
+const MovingButtonsTerms = () => {
   const [showPopup1, setshowPopup1] = useState(false);
   const [showAcceptPopup, setShowAcceptPopup] = useState(false);
   const [timeLeft, setTimeLeft] = useState(11);
@@ -32,6 +23,7 @@ export default function Home() {
 
   useEffect(() => {
     return () => {
+      // Clean up all intervals and animation frames
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -84,6 +76,7 @@ export default function Home() {
     const buttonWidth = acceptButtonRef.current.offsetWidth;
     const buttonHeight = acceptButtonRef.current.offsetHeight;
 
+    // Update accept button position
     acceptPos.current.x += acceptVel.current.x;
     acceptPos.current.y += acceptVel.current.y;
 
@@ -96,6 +89,7 @@ export default function Home() {
       acceptPos.current.y = Math.max(0, Math.min(acceptPos.current.y, containerHeight - buttonHeight));
     }
 
+    // Update decline button position
     declinePos.current.x += declineVel.current.x;
     declinePos.current.y += declineVel.current.y;
 
@@ -108,6 +102,7 @@ export default function Home() {
       declinePos.current.y = Math.max(0, Math.min(declinePos.current.y, containerHeight - buttonHeight));
     }
 
+    // Apply positions
     if (acceptButtonRef.current) {
       acceptButtonRef.current.style.left = `${acceptPos.current.x}px`;
       acceptButtonRef.current.style.top = `${acceptPos.current.y}px`;
@@ -125,7 +120,7 @@ export default function Home() {
 
     if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
 
-    const scrollSpeed = 3000000;
+    const scrollSpeed = 3000000; // 10000x original speed
     scrollIntervalRef.current = setInterval(() => {
       if (!disclaimerTextRef.current) return;
 
@@ -205,69 +200,84 @@ export default function Home() {
     if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setShowPopup(true)
-      setPopupCount((prev) => prev + 1)
-    }, 10000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  const handleButtonClick = () => {
-    alert("Поздравляем! Вы выиграли ничего!")
-    setshowPopup1(true)
-    setShowPopup(true)
-  }
-
   return (
-    <div className={`min-h-screen bg-black relative overflow-x-hidden ${(showPopup1 || showAcceptPopup) ? 'pointer-events-none' : ''}`}>
-      <RandomCursor />
+    <>
+      <Head>
+        <title>Moving Buttons Terms</title>
+        <style>{`
+          .disclaimer-content::-webkit-scrollbar {
+            display: none;
+          }
+          .disclaimer-content {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
 
-      {/* Left side ads */}
-      <div className="fixed left-0 top-0 h-full w-20 md:w-40 flex flex-col gap-4 p-2 z-10">
-        <AdBanner position="left" />
-        <AdBanner position="left" />
-        <AdBanner position="left" />
+          @keyframes rainbowBlink {
+            0% { color: red; }
+            16% { color: orange; }
+            32% { color: yellow; }
+            48% { color: green; }
+            64% { color: blue; }
+            80% { color: indigo; }
+            100% { color: violet; }
+          }
+        `}</style>
+      </Head>
+
+      <div className="container">
+        <h1>Hello, <span className="name">Your Name</span></h1>
+        <button id="termsButton" onClick={handleTermsClick}>View Terms and Conditions</button>
+
+        {showPopup1 && (
+          <>
+            <div className="overlay" onClick={handleOverlayClick} />
+            <div className="popup">
+              <h3>IMPORTANT DISCLAIMER</h3>
+              <div className="time-indicator">
+                Time remaining: <span id="countdown">{timeLeft}</span> seconds
+              </div>
+              <div className="disclaimer-content" ref={disclaimerTextRef}>
+                <p><strong>PLEASE READ THIS DISCLAIMER CAREFULLY BEFORE USING OUR SERVICES.</strong></p>
+                <p><strong>By continuing to use our services, you acknowledge that you have read this disclaimer and agree to its terms.</strong></p>
+                <div id="endOfTerms" />
+              </div>
+            </div>
+          </>
+        )}
+
+        {showAcceptPopup && (
+          <>
+            <div className="overlay" onClick={handleOverlayClick} />
+            <div className="accept-popup">
+              <h3>Accept Terms and Conditions</h3>
+              <p>Do you accept our Terms and Conditions?</p>
+              <div className="button-container" ref={buttonContainerRef}>
+                <button
+                  id="finalAcceptButton"
+                  className="moving-button"
+                  ref={acceptButtonRef}
+                  onClick={handleAcceptClick}
+                >
+                  I Accept
+                </button>
+                <button
+                  id="finalDeclineButton"
+                  className="moving-button"
+                  ref={declineButtonRef}
+                  onClick={handleDeclineClick}
+                >
+                  I Decline
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
-      {/* Right side ads */}
-      <div className="fixed right-0 top-0 h-full w-20 md:w-40 flex flex-col gap-4 p-2 z-10">
-        <AdBanner position="right" />
-        <AdBanner position="right" />
-        <AdBanner position="right" />
-      </div>
 
-      {/* Main content */}
-      <main className="flex min-h-screen flex-col items-center justify-between p-8 md:p-24 relative">
-        <h1 className="text-5xl font-bold text-white mb-6 text-center">BEZUMSHOP 2025</h1>
+    </>
+  );
+};
 
-        <div className="relative flex flex-col items-center">
-          <BlinkingText text="Самая важная информация в мире" className="mb-3 text-4xl font-bold text-center" />
-          <h2 className="text-2xl font-semibold text-green-400 mb-8 animate-bounce">52</h2>
-          <button onClick={handleButtonClick} className="relative px-6 py-3 font-bold text-black group">
-            <span className="absolute inset-0 w-full h-full transition duration-300 ease-out transform -translate-x-2 -translate-y-2 bg-red-300 group-hover:translate-x-0 group-hover:translate-y-0"></span>
-            <span className="absolute inset-0 w-full h-full border-4 border-lime-500"></span>
-            <span className="relative text-xl font-bold">НАЖМИ МЕНЯ!</span>
-          </button>
-        </div>
-
-
-      </main>
-
-      <footer className="fixed bottom-0 w-full bg-gradient-to-r from-purple-900 via-black to-pink-900 p-2 text-center border-t border-gray-300 z-20">
-        <div className="flex justify-center items-center gap-1 mb-1">
-          <Heart className="text-red-500" size={16} />
-          <span className="text-white text-sm">БЕЗУМhack 2025</span>
-          <Heart className="text-red-500" size={16} />
-        </div>
-
-        <div className="mt-1 flex justify-center gap-3">
-          <Bell className="text-yellow-400 animate-spin" size={14} />
-          <AlertTriangle className="text-red-400 animate-bounce" size={14} />
-          <Bell className="text-yellow-400 animate-spin" size={14} />
-        </div>
-      </footer>
-    </div>
-  )
-}
+export default MovingButtonsTerms;
