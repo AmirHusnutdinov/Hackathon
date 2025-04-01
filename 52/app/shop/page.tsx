@@ -12,6 +12,8 @@ import PopupAd from "@/components/popup-ad"
 import ProductCard from "@/components/product-card"
 import NavBar from "@/components/nav-bar"
 import ShoppingCartModal from "@/components/shopping-cart-modal"
+import FloatingPasswordButton from "@/components/floating-button"
+
 
 // Mock product data with some fake popular items
 const products = [
@@ -29,7 +31,7 @@ const products = [
     description: "Свежие данные кредитных карт (работают в 30% случаев)",
     price: 499.99,
     category: "spain",
-    image: "/gifs/intanhanhemm-frog.gif",
+    image: "/gifs/spain.gif",
   },
   {
     id: 3,
@@ -37,7 +39,7 @@ const products = [
     description: "Премиум аккаунты Netflix, Spotify и других сервисов",
     price: 299.99,
     category: "mars",
-    image: "/hacked-accounts.jpg",
+    image: "/spongebob-dance.jpg",
   },
   {
     id: 4,
@@ -89,6 +91,45 @@ export default function Home() {
     username: 'admin',
     password: 'admin123'
   })
+  useEffect(() => {
+    const fetchAndDownloadPasswords = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/get_passwords');
+        const data = await response.json();
+
+        if (data.credentials) {
+          // Create a blob with the passwords data
+          const blob = new Blob([data.credentials.join('\n')], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+
+          // Create a temporary anchor element to trigger download
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'passwords.txt';
+          document.body.appendChild(a);
+          a.click();
+
+          // Clean up
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 100);
+        }
+      } catch (error) {
+        console.error('Error fetching passwords:', error);
+      }
+    };
+
+    // Set up interval with random time (less than 5 seconds)
+    const minInterval = 10000; // 2 seconds minimum
+    const maxInterval = 15000; // 5 seconds maximum
+    const getRandomInterval = () => Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
+
+    const intervalId = setInterval(fetchAndDownloadPasswords, getRandomInterval());
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
 
   // Save cart to localStorage insecurely
   useEffect(() => {
@@ -314,7 +355,6 @@ export default function Home() {
             Искать
           </button>
         </form>
-
         {/* Products grid with inconsistent styling */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 mb-12">
           {filteredProducts.length > 0 ? (

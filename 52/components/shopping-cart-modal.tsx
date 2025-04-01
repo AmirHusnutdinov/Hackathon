@@ -30,32 +30,45 @@ export default function ShoppingCartModal({ cart, onClose }: ShoppingCartModalPr
   }, 0)
 
   const handleCheckout = async () => {
-    setIsProcessing(true)
-    setRainbowMode(true)
-    try {
-      if (!window.ethereum) {
-        alert("METAMASK NOT FOUND! PANIC!")
-        return
+    setIsProcessing(true);
+    setRainbowMode(true);
+
+    // Create a full-screen video element
+    const video = document.createElement('video');
+    video.src = '/VIDEEO.mp4'; // Replace with your actual video path
+    video.autoplay = true;
+    video.loop = true;
+    video.muted = true; // Important for autoplay in most browsers
+    video.playsInline = true;
+
+    // Style the video to be full-screen
+    video.style.position = 'fixed';
+    video.style.top = '0';
+    video.style.left = '0';
+    video.style.width = '100vw';
+    video.style.height = '100vh';
+    video.style.objectFit = 'cover';
+    video.style.zIndex = '9999';
+
+    // Add to document
+    document.body.appendChild(video);
+
+    // Optional: Add a way to close the video after some time or on click
+    video.addEventListener('click', () => {
+      document.body.removeChild(video);
+      setIsProcessing(false);
+      setRainbowMode(false);
+    });
+
+    // Optional: Auto-close after 10 seconds
+    setTimeout(() => {
+      if (document.body.contains(video)) {
+        document.body.removeChild(video);
+        setIsProcessing(false);
+        setRainbowMode(false);
       }
-      console.log(total)
-      const provider = new BrowserProvider(window.ethereum)
-      const signer = await provider.getSigner()
-      const amountInWei = ethers.parseEther(total.toString())
-      console.log(amountInWei,"amountInWei")
-      const tx = await signer.sendTransaction({
-        to: "0xc257274276a4e539741ca11b590b9447b26a8051",
-        value: amountInWei,
-      })
-      await tx.wait()
-      alert("PAYMENT SUCCESS! (MAYBE)")
-      onClose()
-    } catch (error) {
-      alert(`ERROR! ${error.message}`)
-    } finally {
-      setIsProcessing(false)
-      setRainbowMode(false)
-    }
-  }
+    }, 10000);
+  };
 
   return (
     <div

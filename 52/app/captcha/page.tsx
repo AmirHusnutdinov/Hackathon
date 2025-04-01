@@ -9,6 +9,8 @@ import { OrbitControls } from "@react-three/drei"
 import { Button } from "@/components/ui/button"
 import { AlertCircle, CheckCircle, RotateCcw } from "lucide-react"
 import type * as THREE from "three"
+import { redirect } from "next/navigation";
+
 
 // Extend OrbitControls to be used in the scene
 extend({ OrbitControls })
@@ -443,7 +445,10 @@ export default function ThreeDCaptchaChallenge() {
 
   const handleRotationComplete = () => {
     setVerificationState("complete")
+    redirect("/register"); // Redirects to `/new-page` automatically
+
     setConsoleLogs((prev) => ["验证成功! 身份已确认.", ...prev])
+
   }
 
   const resetCaptcha = () => {

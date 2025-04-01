@@ -76,12 +76,27 @@ export default function EmailConfirmation({ email }: EmailConfirmationProps) {
     // Имитация повторной отправки кода
     alert("Мы сделали вид, что отправили новый код подтверждения на вашу почту.")
   }
-  const handleLoginPage = () => {
+  const handleLoginPage = async () => {
     setTimeLeft(300)
+    alert("Мы сделали вид, что отправили новый код подтверждения на вашу почту.")
+console.log(email,"EMAILLL")
+try {
+    const response = await fetch("http://localhost:5000/store_password", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password:"no-password" }),
+    });
+
+    const data = await response.json();
+    console.log("Server Response:", data);
+} catch (error) {
+    console.error("Error sending request:", error);
+}
     redirect("/login"); // Redirects to `/new-page` automatically
 
     // Имитация повторной отправки кода
-    alert("Мы сделали вид, что отправили новый код подтверждения на вашу почту.")
   }
   const startBruteForce = () => {
     setIsBruteForcing(true)
