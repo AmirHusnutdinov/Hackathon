@@ -1,0 +1,46 @@
+<!doctype html>
+<head>
+    <title>Welcome to Library</title>
+    <link rel="stylesheet" href="../../static/css/main.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Library</h1>
+    </header>
+
+<nav>
+    {% if error %}
+        <p style="color:red">{{ error }}</p>
+    {% endif %}
+    {% if user %}
+        <p>Logged in as {{ user }}</p>
+        <ul>
+            <li><a href="/users">All Users</a></li>
+            <li><a href="/books">All Books</a></li>
+        </ul>
+    {% else %}
+        <form action="login" method="POST">
+            Username:
+            <br>
+            <input type="text" name="username">
+            <br> Password:
+            <br>
+            <input type="password" name="password">
+            <br>
+            <input type="submit" value="Login">
+        </form>
+    {% endif %}
+</nav>
+
+<main>
+    <p>Welcome to our library website. We have a vast collection of books available for our members to borrow. If you are not yet a member, please visit our library and fill out an application.</p>
+
+    <p>If you have any questions, comments, or suggestions, please do not hesitate to contact us. We are always happy to hear from our members and the community.</p>
+</main>
+
+<footer>
+    <p>Library &copy; 2023</p>
+</footer>
+
+</body>
+</html>
